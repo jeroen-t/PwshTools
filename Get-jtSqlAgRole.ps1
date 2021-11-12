@@ -1,40 +1,48 @@
 Function Get-jtSqlAgRole {
 <#
-    .SYNOPSIS
-        Function that will get the Primary and Secondary server role of the specified Availability Group(s).
-    .DESCRIPTION
-        Function that will get the Primary and Secondary server role of the specified Availability Group(s).
-    .PARAMETER AvailabilityGroupName
-        Specifies the name of the Availability Group.
-    .EXAMPLE
-        - Example 1: Get the roles for an Availability Group -
+.SYNOPSIS
+    Function that will get the Primary and Secondary server role of the specified Availability Group(s).
 
-        PS C:\> Get-jtSqlAgRole -AvailabilityGroupName "Available"
+.DESCRIPTION
+    The Get-jtSqlAgRole cmdlet will get the Primary and Secondary server role of the specified Availability Group(s). Aswell as the Primary and Secondary AG Paths.
 
-        AvailabilityGroupName PrimaryServer SecondaryServer
-        --------------------- ------------- ---------------
-        Available             SomeServer01  SomeServer02
-    .EXAMPLE
-        - Example 2: Get the roles for multiple piped Availability Groups -
+.PARAMETER AvailabilityGroupName
+    Specifies the name of the Availability Group.
 
-        PS C:\> "Available","DenverCoder9","AwesomeMix" | Get-jtSqlAgRole
+.EXAMPLE
+    - Example 1: Get the roles for an Availability Group -
 
-        AvailabilityGroupName PrimaryServer SecondaryServer
-        --------------------- ------------- ---------------
-        Available             SomeServer01  SomeServer02
-        DenverCoder9          Sequel01      Sequel02
-        AwesomeMix            Volume01      Volume02
-    .EXAMPLE
-        - Example 3: Get the roles for multiple Availability Groups -
+    PS C:\> Get-jtSqlAgRole -AvailabilityGroupName "Available"
 
-        PS C:\> Get-jtSqlAgRole -AG "Available","DenverCoder9","AwesomeMix"
+    AvailabilityGroupName PrimaryServer SecondaryServer
+    --------------------- ------------- ---------------
+    Available             SomeServer01  SomeServer02
 
-        AvailabilityGroupName PrimaryServer SecondaryServer
-        --------------------- ------------- ---------------
-        Available             SomeServer01  SomeServer02
-        DenverCoder9          Sequel01      Sequel02
-        AwesomeMix            Volume01      Volume02
+.EXAMPLE
+    - Example 2: Get the roles for multiple piped Availability Groups -
 
+    PS C:\> "Available","DenverCoder9","AwesomeMix" | Get-jtSqlAgRole
+
+    AvailabilityGroupName PrimaryServer SecondaryServer
+    --------------------- ------------- ---------------
+    Available             SomeServer01  SomeServer02
+    DenverCoder9          Sequel01      Sequel02
+    AwesomeMix            Volume01      Volume02
+
+.EXAMPLE
+    - Example 3: Get the roles for multiple Availability Groups -
+
+    PS C:\> Get-jtSqlAgRole -AG "Available","DenverCoder9","AwesomeMix"
+
+    AvailabilityGroupName PrimaryServer SecondaryServer
+    --------------------- ------------- ---------------
+    Available             SomeServer01  SomeServer02
+    DenverCoder9          Sequel01      Sequel02
+    AwesomeMix            Volume01      Volume02
+
+.NOTES
+    Author: Jeroen Trimbach
+    Website: Https://jeroentrimbach.com
 #>
     [CmdletBinding()]
     [Alias("Get-AGRole")]
