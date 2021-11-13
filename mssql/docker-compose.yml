@@ -1,0 +1,38 @@
+version: '3.3'
+
+services:
+  db1:
+    container_name: sqlcontainer1
+    image: jtmssql:latest
+    hostname: sqlNode1
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "HAv3IBeenPwn3d"
+      MSSQL_PID: "Developer"
+    ports:
+    - 14331:1433
+    - 50221:5022
+
+  db2:
+    container_name: sqlcontainer2
+    image: jtmssql:latest
+    hostname: sqlNode2
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "HAv3IBeenPwn3d"
+      MSSQL_PID: "Developer"
+    ports:
+    - 14332:1433
+    - 50222:5022
+
+  db3:
+    container_name: sqlcontainer3
+    image: jtmssql:latest
+    hostname: sqlNode3
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "HAv3IBeenPwn3d"
+      MSSQL_PID: "Developer"
+    ports:
+    - 14333:1433
+    - 50223:5022
