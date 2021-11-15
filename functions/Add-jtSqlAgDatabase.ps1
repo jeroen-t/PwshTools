@@ -58,25 +58,27 @@ Function Add-jtSqlAgDatabase {
 
     Begin {
         Write-Verbose "[$((Get-Date).TimeOfDay)] 3..2..1.. GO! $($myinvocation.mycommand)."
-        $AGReplica = Get-jtSqlAgRole -AvailabilityGroupName $AvailabilityGroupName
-        if([string]::IsNullOrWhiteSpace($Path)){
-            $Path = "\\$($AGReplica.PrimaryServer)\Backup\"
-            Write-Verbose "No backup path specified. Trying.. `"$Path`"."
-        }
-        if (!($Path.Substring(0,2) -eq '\\')) {
-            Write-Error "$Path is not an SMB Share. Cancelling script."
-            Exit 1
-        }
-        if (Test-Path -Path $Path){
-            Write-Verbose "Backup path exists!"
-            if($Path -notmatch '\\$'){
-                $path += '\'
+        try {
+            $AGReplica = Get-jtSqlAgRole -AvailabilityGroupName $AvailabilityGroupName -ErrorAction Stop
+            if([string]::IsNullOrWhiteSpace($Path)){
+                $Path = "\\$($AGReplica.PrimaryServer)\Backup\"
+                Write-Verbose "No backup path specified. Trying.. `"$Path`"."
             }
-            Write-Verbose "Location: $Path"
-        } else {
-            Write-Error "The path `"$Path`" doesn't exist. Please specify a valid backup location."
-            Exit 1
-        } 
+            if (!($Path.Substring(0,2) -eq '\\')) {
+                Write-Error "$Path is not an SMB Share. Cancelling script." -ErrorAction Stop
+            }
+            if (Test-Path -Path $Path){
+                Write-Verbose "Backup path exists!"
+                if($Path -notmatch '\\$'){
+                    $path += '\'
+                }
+                Write-Verbose "Location: $Path"
+            } else {
+                Write-Error "The path `"$Path`" doesn't exist. Please specify a valid backup location." -ErrorAction Stop
+            }
+        } catch {
+            Write-Error $_.Exception.Message -ErrorAction Stop
+        }
     } #begin
 
     Process {
@@ -84,7 +86,13 @@ Function Add-jtSqlAgDatabase {
             Write-Verbose "Trying to add the database $database to Availabilty Group: $AvailabilityGroupName."
             try {
                 Write-Verbose "Checking whether the database $database is available on the primary replica.."
-                Get-SqlDatabase -ServerInstance $AvailabilityGroupName -Name $database -ErrorAction Stop
+
+                $DB = Get-SqlDatabase -ServerInstance $AvailabilityGroupName -Name $database -ErrorAction Stop
+                if($DB.RecoveryModel -ne 'Full') {
+                    Write-Verbose 'Changing the recovery model of the database to "Full".' 
+                    $DB.RecoveryModel = [Microsoft.SqlServer.Management.Smo.RecoveryModel]::Full
+                    $DB.Alter()
+                }
                 
                 Write-Verbose "Initiating full backup.."
                 $BackupFilesFull = for($i=1; $i -le 8; $i++) {
@@ -94,6 +102,7 @@ Function Add-jtSqlAgDatabase {
                     Database = $database
                     BackupFile = $BackupFilesFull
                     ServerInstance = $AGReplica.PrimaryServer
+                    ErrorAction = 'Stop'
                 }
                 Backup-SqlDatabase @propsFullBak
 
@@ -106,6 +115,7 @@ Function Add-jtSqlAgDatabase {
                     BackupFile = $BackupFilesLog
                     ServerInstance =  $AGReplica.PrimaryServer
                     BackupAction = 'Log'
+                    ErrorAction = 'Stop'
                 }
                 Backup-SqlDatabase @propsLogTrn
 
@@ -115,6 +125,7 @@ Function Add-jtSqlAgDatabase {
                     BackupFile = $BackupFilesFull
                     ServerInstance = $AGReplica.SecondaryServer
                     NoRecovery = $true
+                    ErrorAction = 'Stop'
                 }
                 Restore-SqlDatabase @propsFullBakRestore
 
@@ -125,20 +136,20 @@ Function Add-jtSqlAgDatabase {
                     ServerInstance = $AGReplica.SecondaryServer
                     RestoreAction = 'Log'
                     NoRecovery = $true
+                    ErrorAction = 'Stop'
                 }
                 Restore-SqlDatabase @propsLogTrnRestore
 
                 Write-Verbose "Log backup restored. Adding database to the AG on the primary replica."
-                Add-SqlAvailabilityDatabase -Path $AGReplica.PrimaryPath -Database $database
+                Add-SqlAvailabilityDatabase -Path $AGReplica.PrimaryPath -Database $database -ErrorAction Stop
 
                 Write-Verbose "Database is added to the AG on the primary replica. Adding on secondary replica.."
-                Add-SqlAvailabilityDatabase -Path $AGReplica.SecondaryPath -Database $database
+                Add-SqlAvailabilityDatabase -Path $AGReplica.SecondaryPath -Database $database -ErrorAction Stop
 
                 Write-Verbose "$database is added to the Availability Group: $AvailabilityGroupName."
 
             } catch {
-                Write-Error $_.Exception.Message
-                Exit 1
+                Write-Error $_.Exception.Message -ErrorAction Stop
             }
         } #foreach
     } #process

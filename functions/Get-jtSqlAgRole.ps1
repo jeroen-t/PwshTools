@@ -61,7 +61,12 @@ Function Get-jtSqlAgRole {
         foreach ($AG in $AvailabilityGroupName) {
             Write-Verbose "Searching for the replicas for Avaivability Group: $AG."
             try {
-                $PrimaryServer = (Get-SqlInstance -ServerInstance $AG).NetName
+                $serverProps = Get-SqlInstance -ServerInstance $AG -ErrorAction Stop
+                $Replica = $serverProps.AvailabilityGroups | Where-Object {$_.Name -eq $AG}
+                if (!($Replica)) {
+                    Write-Error "$AG is not an Availability Group." -ErrorAction Stop
+                }
+                $PrimaryServer = $Replica.PrimaryReplicaServerName
                 $AgPrimaryPath = "SQLSERVER:\SQL\$PrimaryServer\Default\AvailabilityGroups\$AG"
                 $SecondaryServer = (Get-ChildItem -Path $AgPrimaryPath\AvailabilityReplicas | Where-Object {$_.Role -eq 'Secondary'}).Name
                 $props = [ordered]@{
