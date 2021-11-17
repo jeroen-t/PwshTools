@@ -82,7 +82,7 @@ Function Add-jtSqlAgDatabase {
     } #begin
 
     Process {
-        foreach ($database in $Name) {
+        $output = foreach ($database in $Name) {
             Write-Verbose "Trying to add the database $database to Availabilty Group: $AvailabilityGroupName."
             try {
                 Write-Verbose "Checking whether the database $database is available on the primary replica.."
@@ -148,6 +148,7 @@ Function Add-jtSqlAgDatabase {
 
                 Write-Verbose "$database is added to the Availability Group: $AvailabilityGroupName."
 
+                $BackupFilesFull + $BackupFilesLog
             } catch {
                 Write-Error $_.Exception.Message -ErrorAction Stop
             }
@@ -155,6 +156,12 @@ Function Add-jtSqlAgDatabase {
     } #process
 
     End {
+        Write-Verbose "Cleaning up backup files.."
+        try {
+            Remove-Item $output | Out-Null
+        } catch {
+            Write-Error $_.Exception.Message
+        }
         Write-Verbose "[$((Get-Date).TimeOfDay)] Ending $($myinvocation.mycommand)"
     } #end
 }
