@@ -1,4 +1,4 @@
-function Get-jtTlsSettings {
+function Get-jtTlsVersion {
     Param (
         [parameter(Mandatory)]
         [string[]]$protocol
@@ -24,4 +24,4 @@ function Get-jtTlsSettings {
 }
 
 $protocol = @('tls 1.2','tls 1.3')
-Invoke-Command -ScriptBlock ${function:Get-jtTlsSettings} -ArgumentList $protocol -ComputerName $computer
+Invoke-Command -ScriptBlock ${function:Get-jtTlsVersion} -ArgumentList $protocol -ComputerName $computer
