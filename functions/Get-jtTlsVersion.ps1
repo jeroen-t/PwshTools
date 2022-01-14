@@ -23,5 +23,6 @@ function Get-jtTlsVersion {
     }
 }
 
+$computer = 'greenskins','skaven'
 $protocol = @('tls 1.2','tls 1.3')
-Invoke-Command -ScriptBlock ${function:Get-jtTlsVersion} -ArgumentList $protocol -ComputerName $computer
+Invoke-Command -ScriptBlock ${function:Get-jtTlsVersion} -ArgumentList (,$protocol) -ComputerName $computer
