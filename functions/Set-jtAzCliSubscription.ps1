@@ -1,10 +1,14 @@
 function Set-jtAzCliSubscription {
+<#
+.SYNOPSIS
+    Wrapper function for the Azure CLI account commands to easily switch between subscriptions using consolegridview GUI.
+#>
     #Requires -Modules Microsoft.PowerShell.ConsoleGuiTools
     #Requires -Version 7
     # AzureCli (+ resource-graph extension) | az extension add --name resource-graph
     $subscriptions = (az graph query -q "resourcecontainers | where type == 'microsoft.resources/subscriptions' | project name, subscriptionId, tags" | ConvertFrom-Json).data
     if ($LASTEXITCODE) {
-        $_; EXIT
+        $_; EXIT 1
     }
     $subscriptionId = (($subscriptions | ForEach-Object {
                 $description = $_.tags.description ? $_.tags.description : 'N.A.'
