@@ -1,4 +1,4 @@
-function Set-SubscriptionAzurePS {
+function Set-jtSubscriptionAzurePS {
 <#
 .SYNOPSIS
     Wrapper function for the Az Accounts module commands to easily switch between subscriptions using consolegridview GUI.
