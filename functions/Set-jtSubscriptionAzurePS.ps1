@@ -22,5 +22,5 @@ function Set-jtSubscriptionAzurePS {
         }
     }
     $subscriptionId = ($subscriptions | Out-ConsoleGridView -OutputMode Single).subscriptionId
-    Set-AzContext -SubscriptionId $subscriptionId
+    $subscriptionId ? (Set-AzContext -SubscriptionId $subscriptionId) : (Get-AzContext)
 }
