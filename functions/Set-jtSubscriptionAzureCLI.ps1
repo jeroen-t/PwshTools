@@ -1,4 +1,4 @@
-function Set-jtAzCliSubscription {
+function Set-jtSubscriptionAzureCLI {
 <#
 .SYNOPSIS
     Wrapper function for the Azure CLI account commands to easily switch between subscriptions using consolegridview GUI.
@@ -19,7 +19,7 @@ function Set-jtAzCliSubscription {
                     environment    = $environment
                     subscriptionId = $_.subscriptionId
                 }
-            }) | Out-ConsoleGridView -OutputMode Single).subscriptionId
+            }) | Sort-Object environment | Out-ConsoleGridView -OutputMode Single).subscriptionId
     $subscriptionId ? (az account set -s $subscriptionId) : "Exited. The current active subscription is:"
     az account show
 }
