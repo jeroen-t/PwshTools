@@ -7,12 +7,14 @@ function Set-jtSubscriptionAzurePS {
     #Requires -Version 7
     $subscriptions = Get-AzSubscription | Foreach-Object {
         $description = $environment = $null
-        foreach ($tag in $_.Tags.GetEnumerator()) {
-            if ($tag.Key -eq "description") {
-                $description = $tag.Value
-            } elseif ($tag.Key -eq "environment") {
-                $environment = $tag.Value
-            } else { continue }
+        if ($_.Tags) {
+            foreach ($tag in $_.Tags.GetEnumerator()) {
+                if ($tag.Key -eq "description") {
+                    $description = $tag.Value
+                } elseif ($tag.Key -eq "environment") {
+                    $environment = $tag.Value
+                } else { continue }
+            }
         }
         [PSCustomObject]@{
             name           = $_.Name
